@@ -7,6 +7,9 @@
   "engines": {
     "vscode": "^1.37.0"
   },
+  "repository": {
+    "url": "https://github.com/bmalehorn/vscode-scroll-viewport"
+  },
   "categories": [
     "Other"
   ],
