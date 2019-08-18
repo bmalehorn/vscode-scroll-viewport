@@ -10,20 +10,35 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:scroll-viewport.scrollDown",
-    "onCommand:scroll-viewport.scrollUp"
+    "onCommand:scrollViewport.scrollDown",
+    "onCommand:scrollViewport.scrollUp"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Scroll Viewport",
+      "properties": {
+        "scrollViewport.lines": {
+          "type": "integer",
+          "description": "How many lines to move up / down",
+          "default": 10
+        },
+        "scrollViewport.buffer": {
+          "type": "integer",
+          "description": "Number of lines to keep between cursor and edge of screen",
+          "default": 1
+        }
+      }
+    },
     "keybindings": [
       {
-        "command": "scroll-viewport.scrollDown",
+        "command": "scrollViewport.scrollDown",
         "key": "ctrl+down",
         "mac": "cmd+down",
         "when": "editorTextFocus"
       },
       {
-        "command": "scroll-viewport.scrollUp",
+        "command": "scrollViewport.scrollUp",
         "key": "ctrl+up",
         "mac": "cmd+up",
         "when": "editorTextFocus"

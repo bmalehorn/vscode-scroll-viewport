@@ -1,6 +1,6 @@
-# scroll-viewport README
+# scrollViewport README
 
-This is the README for your extension "scroll-viewport". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "scrollViewport". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
