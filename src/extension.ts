@@ -7,10 +7,11 @@ import { Range, Selection } from "vscode";
 
 let global = {
   lines: 10,
+  cursorFollowsViewport: false,
   buffer: 1,
 };
 
-const moveDown = async (lines: number, buffer: number) => {
+const moveDown = (lines: number): Range => {
   const editor = vscode.window.activeTextEditor!;
   const { start, end } = editor.visibleRanges[0];
   const newRange = new Range(
@@ -18,17 +19,21 @@ const moveDown = async (lines: number, buffer: number) => {
     end.with(Math.max(end.line + lines, 0)),
   );
   editor.revealRange(new Selection(newRange.start, newRange.end));
+  return newRange;
+};
 
+const confineCursorToViewport = (range: Range, buffer: number) => {
+  const editor = vscode.window.activeTextEditor!;
   // put active inside new revealed range
-  if (editor.selection.active.compareTo(newRange.start) < 0) {
-    const newPosition = newRange.start.with(newRange.start.line + buffer, 0);
+  if (editor.selection.active.compareTo(range.start) < 0) {
+    const newPosition = range.start.with(range.start.line + buffer, 0);
     editor.selection = new Selection(
       selecting() ? editor.selection.anchor : newPosition,
       newPosition,
     );
   }
-  if (editor.selection.active.compareTo(newRange.end) > 0) {
-    const newPosition = newRange.end.with(newRange.end.line - buffer, 0);
+  if (editor.selection.active.compareTo(range.end) > 0) {
+    const newPosition = range.end.with(range.end.line - buffer, 0);
     editor.selection = new Selection(
       selecting() ? editor.selection.anchor : newPosition,
       newPosition,
@@ -43,18 +48,30 @@ const selecting = (): boolean => {
 };
 
 const scrollDown = () => {
-  moveDown(global.lines, global.buffer);
+  const newRange = moveDown(global.lines);
+  if (global.cursorFollowsViewport) {
+    confineCursorToViewport(newRange, global.buffer);
+  }
 };
 
 const scrollUp = () => {
-  moveDown(-global.lines, global.buffer);
+  const newRange = moveDown(-global.lines);
+  if (global.cursorFollowsViewport) {
+    confineCursorToViewport(newRange, global.buffer);
+  }
 };
 
 const updateFromConfig = () => {
   const configuration = vscode.workspace.getConfiguration("scrollViewport");
-  const lines = configuration.get<number>("lines") || 10;
-  const buffer = configuration.get<number>("buffer") || 1;
-  global = { ...global, ...{ lines, buffer } };
+  global = {
+    ...global,
+    ...{
+      lines: configuration.get<number>("lines") || 10,
+      cursorFollowsViewport:
+        configuration.get<boolean>("cursorFollowsViewport") || false,
+    },
+    buffer: configuration.get<number>("buffer") || 1,
+  };
 };
 
 // this method is called when your extension is activated
