@@ -1,5 +1,3 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 // tslint:disable-next-line: no-implicit-dependencies
 import * as vscode from "vscode";
 // tslint:disable-next-line: no-duplicate-imports no-implicit-dependencies

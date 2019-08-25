@@ -3,7 +3,7 @@
   "name": "scroll-viewport",
   "displayName": "📜🖥 Scroll Viewport",
   "description": "Move the screen up and down, like with your mouse",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.37.0"
   },
@@ -13,6 +13,7 @@
   "categories": [
     "Other"
   ],
+  "icon": "scroll-viewport.png",
   "activationEvents": [
     "onCommand:scrollViewport.scrollDown",
     "onCommand:scrollViewport.scrollUp"
