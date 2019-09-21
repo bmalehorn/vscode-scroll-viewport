@@ -42,6 +42,7 @@ const calculateLimits = (
     // 1. top <=> bottom
     // 2. 0 ... visibleRanges.length <=> visibleRanges.length ... 0
     // 3. + <=> -
+    // 4. start <=> end
     // it's probably possible to use the same code for up & down,
     // but I'd rather have it inlined, out in the open
     const top = visibleRanges[0].start.line - lines;
@@ -59,7 +60,7 @@ const calculateLimits = (
       // burn 1 line to reach next visible range
       if (linesRemaining > 0 && i >= 0) {
         linesRemaining--;
-        bottom = visibleRanges[i].start.line;
+        bottom = visibleRanges[i].end.line;
       }
     }
     bottom -= linesRemaining;
