@@ -1,12 +1,75 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import * as vscode from "vscode";
 // tslint:disable-next-line: no-duplicate-imports no-implicit-dependencies
-import { Range, Selection } from "vscode";
+import { Range, Selection, Position } from "vscode";
 
 let global = {
   lines: 10,
   cursorFollowsViewport: false,
   buffer: 1,
+};
+
+type Direction = "down" | "up";
+
+const calculateLimits = (
+  lines: number,
+  direction: Direction,
+): { top: number; bottom: number } => {
+  const editor = vscode.window.activeTextEditor!;
+  const { visibleRanges } = editor;
+  if (direction === "down") {
+    const bottom = visibleRanges[visibleRanges.length - 1].end.line + lines;
+
+    let top = visibleRanges[0].start.line;
+    let linesRemaining = lines;
+    let i = 0;
+
+    while (linesRemaining > 0 && i < visibleRanges.length) {
+      const range = visibleRanges[i];
+      const toBurn = Math.min(range.end.line - top, linesRemaining);
+      linesRemaining -= toBurn;
+      top += toBurn;
+      i++;
+      // burn 1 line to reach next visible range
+      if (linesRemaining > 0 && i < visibleRanges.length) {
+        linesRemaining--;
+        top = visibleRanges[i].start.line;
+      }
+    }
+    top += linesRemaining;
+
+    return { top, bottom };
+  }
+
+  return { top: 0, bottom: 0 };
+};
+
+const scrollDown = () => {
+  const editor = vscode.window.activeTextEditor!;
+
+  const { top, bottom } = calculateLimits(global.lines, "down");
+
+  // update viewport - reveal bottom
+  const bottomPosition = new Position(bottom, 0);
+  editor.revealRange(new Selection(bottomPosition, bottomPosition));
+
+  // update cursor - move to top
+  const topPosition = new Position(top, 0);
+  confineCursorToViewport(new Range(topPosition, bottomPosition), 0);
+  // if (editor.selection.active.compareTo(topPosition) < 0) {
+  //   const newPosition = topPosition.with(topPosition.line + global.buffer, 0);
+  //   editor.selection = new Selection(
+  //     selecting() ? editor.selection.anchor : newPosition,
+  //     newPosition,
+  //   );
+  // }
+};
+
+const scrollUp = () => {
+  const newRange = moveDown(-global.lines);
+  if (global.cursorFollowsViewport) {
+    confineCursorToViewport(newRange, global.buffer);
+  }
 };
 
 const moveDown = (lines: number): Range => {
@@ -43,20 +106,6 @@ const selecting = (): boolean => {
   return vscode.window.activeTextEditor!.selections.some(
     selection => !selection.anchor.isEqual(selection.active),
   );
-};
-
-const scrollDown = () => {
-  const newRange = moveDown(global.lines);
-  if (global.cursorFollowsViewport) {
-    confineCursorToViewport(newRange, global.buffer);
-  }
-};
-
-const scrollUp = () => {
-  const newRange = moveDown(-global.lines);
-  if (global.cursorFollowsViewport) {
-    confineCursorToViewport(newRange, global.buffer);
-  }
 };
 
 const updateFromConfig = () => {
