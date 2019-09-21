@@ -5,7 +5,7 @@ import { Position, Range, Selection } from "vscode";
 
 let global = {
   lines: 10,
-  cursorFollowsViewport: false,
+  cursorFollowsViewport: true,
 };
 
 type Direction = "down" | "up";
@@ -129,9 +129,11 @@ const updateFromConfig = () => {
   global = {
     ...global,
     ...{
-      lines: configuration.get<number>("lines") || 10,
-      cursorFollowsViewport:
-        configuration.get<boolean>("cursorFollowsViewport") || false,
+      lines: configuration.get<number>("lines", 10),
+      cursorFollowsViewport: configuration.get<boolean>(
+        "cursorFollowsViewport",
+        true,
+      ),
     },
   };
 };

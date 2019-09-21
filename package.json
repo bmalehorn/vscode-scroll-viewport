@@ -3,7 +3,7 @@
   "name": "scroll-viewport",
   "displayName": "📜🖥 Scroll Viewport",
   "description": "Move the screen up and down, like with your mouse",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "engines": {
     "vscode": "^1.37.0"
   },
