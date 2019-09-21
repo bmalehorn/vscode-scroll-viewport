@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.0.1
+
+- fixed a bug preventing scrolling to the very top
+- fixed a bug causing the cursor to move event when the viewport didn't
+
 ## 2.0.0
 
 - fixed a bug causing folded code to un-fold when scrolled past

@@ -17,10 +17,14 @@ const calculateLimits = (
   const editor = vscode.window.activeTextEditor!;
   const { visibleRanges } = editor;
   if (direction === "down") {
-    const bottom = visibleRanges[visibleRanges.length - 1].end.line + lines;
+    const bottom = Math.min(
+      visibleRanges[visibleRanges.length - 1].end.line + lines,
+      editor.document.lineCount,
+    );
 
     let top = visibleRanges[0].start.line;
-    let linesRemaining = lines;
+    let linesRemaining =
+      bottom - visibleRanges[visibleRanges.length - 1].end.line;
     let i = 0;
 
     while (linesRemaining > 0 && i < visibleRanges.length) {
@@ -45,10 +49,10 @@ const calculateLimits = (
     // 4. start <=> end
     // it's probably possible to use the same code for up & down,
     // but I'd rather have it inlined, out in the open
-    const top = visibleRanges[0].start.line - lines;
+    const top = Math.max(visibleRanges[0].start.line - lines, 0);
 
     let bottom = visibleRanges[visibleRanges.length - 1].end.line;
-    let linesRemaining = lines;
+    let linesRemaining = visibleRanges[0].start.line - top;
     let i = visibleRanges.length - 1;
 
     while (linesRemaining > 0 && i >= 0) {
