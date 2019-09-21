@@ -32,11 +32,6 @@
           "type": "boolean",
           "description": "Move the cursor as necessary to keep within the viewport",
           "default": false
-        },
-        "scrollViewport.buffer": {
-          "type": "integer",
-          "description": "Number of lines to keep between cursor and edge of screen",
-          "default": 1
         }
       }
     },

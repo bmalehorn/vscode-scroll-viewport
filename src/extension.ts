@@ -1,12 +1,11 @@
 // tslint:disable-next-line: no-implicit-dependencies
 import * as vscode from "vscode";
 // tslint:disable-next-line: no-duplicate-imports no-implicit-dependencies
-import { Range, Selection, Position } from "vscode";
+import { Position, Range, Selection } from "vscode";
 
 let global = {
   lines: 10,
   cursorFollowsViewport: false,
-  buffer: 1,
 };
 
 type Direction = "down" | "up";
@@ -39,6 +38,33 @@ const calculateLimits = (
     top += linesRemaining;
 
     return { top, bottom };
+  } else if (direction === "up") {
+    // 1. top <=> bottom
+    // 2. 0 ... visibleRanges.length <=> visibleRanges.length ... 0
+    // 3. + <=> -
+    // it's probably possible to use the same code for up & down,
+    // but I'd rather have it inlined, out in the open
+    const top = visibleRanges[0].start.line - lines;
+
+    let bottom = visibleRanges[visibleRanges.length - 1].end.line;
+    let linesRemaining = lines;
+    let i = visibleRanges.length - 1;
+
+    while (linesRemaining > 0 && i >= 0) {
+      const range = visibleRanges[i];
+      const toBurn = Math.min(bottom - range.start.line, linesRemaining);
+      linesRemaining -= toBurn;
+      bottom -= toBurn;
+      i--;
+      // burn 1 line to reach next visible range
+      if (linesRemaining > 0 && i >= 0) {
+        linesRemaining--;
+        bottom = visibleRanges[i].start.line;
+      }
+    }
+    bottom -= linesRemaining;
+
+    return { top, bottom };
   }
 
   return { top: 0, bottom: 0 };
@@ -55,46 +81,35 @@ const scrollDown = () => {
 
   // update cursor - move to top
   const topPosition = new Position(top, 0);
-  confineCursorToViewport(new Range(topPosition, bottomPosition), 0);
-  // if (editor.selection.active.compareTo(topPosition) < 0) {
-  //   const newPosition = topPosition.with(topPosition.line + global.buffer, 0);
-  //   editor.selection = new Selection(
-  //     selecting() ? editor.selection.anchor : newPosition,
-  //     newPosition,
-  //   );
-  // }
+  confineCursorToViewport(new Range(topPosition, bottomPosition));
 };
 
 const scrollUp = () => {
-  const newRange = moveDown(-global.lines);
-  if (global.cursorFollowsViewport) {
-    confineCursorToViewport(newRange, global.buffer);
-  }
-};
-
-const moveDown = (lines: number): Range => {
   const editor = vscode.window.activeTextEditor!;
-  const { start, end } = editor.visibleRanges[0];
-  const newRange = new Range(
-    start.with(Math.max(start.line + lines, 0)),
-    end.with(Math.max(end.line + lines, 0)),
-  );
-  editor.revealRange(new Selection(newRange.start, newRange.end));
-  return newRange;
+
+  const { top, bottom } = calculateLimits(global.lines, "up");
+
+  // update viewport - reveal top
+  const topPosition = new Position(top, 0);
+  editor.revealRange(new Selection(topPosition, topPosition));
+
+  // update cursor - move to bottom
+  const bottomPosition = new Position(bottom, 0);
+  confineCursorToViewport(new Range(bottomPosition, topPosition));
 };
 
-const confineCursorToViewport = (range: Range, buffer: number) => {
+const confineCursorToViewport = (range: Range) => {
   const editor = vscode.window.activeTextEditor!;
   // put active inside new revealed range
   if (editor.selection.active.compareTo(range.start) < 0) {
-    const newPosition = range.start.with(range.start.line + buffer, 0);
+    const newPosition = range.start.with(range.start.line, 0);
     editor.selection = new Selection(
       selecting() ? editor.selection.anchor : newPosition,
       newPosition,
     );
   }
   if (editor.selection.active.compareTo(range.end) > 0) {
-    const newPosition = range.end.with(range.end.line - buffer, 0);
+    const newPosition = range.end.with(range.end.line, 0);
     editor.selection = new Selection(
       selecting() ? editor.selection.anchor : newPosition,
       newPosition,
@@ -117,7 +132,6 @@ const updateFromConfig = () => {
       cursorFollowsViewport:
         configuration.get<boolean>("cursorFollowsViewport") || false,
     },
-    buffer: configuration.get<number>("buffer") || 1,
   };
 };
 
