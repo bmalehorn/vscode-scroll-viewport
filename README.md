@@ -1,6 +1,7 @@
 # 📜🖥 Scroll Viewport
 
 [![version number](https://vsmarketplacebadge.apphb.com/version-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
+[![install count](https://vsmarketplacebadge.apphb.com/installs-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
 [![download count](https://vsmarketplacebadge.apphb.com/downloads-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
 
 ![demo](demo.gif)
