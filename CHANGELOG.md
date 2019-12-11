@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.2
+
+- remove downloads badge from README
+
 ## 2.0.1
 
 - fixed a bug preventing scrolling to the very top
