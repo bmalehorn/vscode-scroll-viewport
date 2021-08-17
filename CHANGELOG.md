@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.3
+
+- make it so you don't have to enable Scroll Viewport in remote dev environments
+
 ## 2.0.2
 
 - remove downloads badge from README

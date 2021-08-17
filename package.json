@@ -4,7 +4,7 @@
   "displayName": "📜🖥 Scroll Viewport",
   "description": "Move the screen up and down, like with your mouse",
   "license": "MIT",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "engines": {
     "vscode": "^1.37.0"
   },
@@ -18,6 +18,10 @@
   "activationEvents": [
     "onCommand:scrollViewport.scrollDown",
     "onCommand:scrollViewport.scrollUp"
+  ],
+  "extensionKind": [
+    "ui",
+    "workspace"
   ],
   "main": "./out/extension.js",
   "contributes": {
