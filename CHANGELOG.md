@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.4
+
+- update demo gif for mac os
+
 ## 2.0.3
 
 - make it so you don't have to enable Scroll Viewport in remote dev environments

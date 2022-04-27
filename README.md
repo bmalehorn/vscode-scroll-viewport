@@ -3,7 +3,7 @@
 [![version number](https://vsmarketplacebadge.apphb.com/version-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
 [![install count](https://vsmarketplacebadge.apphb.com/installs-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
 
-![demo](demo.gif)
+<img src="demo.gif" width="600">
 
 When you scroll with the mouse, it moves the viewport up and down without moving the cursor.
 
