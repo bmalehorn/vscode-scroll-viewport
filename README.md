@@ -16,10 +16,9 @@ Scroll Viewport adds keybindings for that behavior:
 
 ## Extension Settings
 
-| name                                   | default | effect                                                                                |
-| -------------------------------------- | ------- | ------------------------------------------------------------------------------------- |
-| `scrollViewport.lines`                 | `10`    | How many lines to scroll up / down                                                    |
-| `scrollViewport.cursorFollowsViewport` | `true`  | When `true`, cursor will stay inside the viewport instead of scrolling off the screen |
+| name                   | default | effect                             |
+| ---------------------- | ------- | ---------------------------------- |
+| `scrollViewport.lines` | `10`    | How many lines to scroll up / down |
 
 ## `editorScroll`
 

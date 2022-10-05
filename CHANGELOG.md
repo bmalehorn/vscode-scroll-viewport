@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.0
+
+- added feature: obeys `editor.cursorSurroundLines`
+- fixed a bug causing scrolling more than `scrollViewport.lines`
+- removed `scrollViewport.cursorFollowsViewport`, which used to be ignored
+
 ## 2.0.4
 
 - update demo gif for mac os

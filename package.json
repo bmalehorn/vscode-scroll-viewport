@@ -4,7 +4,7 @@
   "displayName": "📜🖥 Scroll Viewport",
   "description": "Move the screen up and down, like with your mouse",
   "license": "MIT",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "engines": {
     "vscode": "^1.37.0"
   },
@@ -32,11 +32,6 @@
           "type": "integer",
           "description": "How many lines to move up / down",
           "default": 10
-        },
-        "scrollViewport.cursorFollowsViewport": {
-          "type": "boolean",
-          "description": "Move the cursor as necessary to keep within the viewport",
-          "default": false
         }
       }
     },

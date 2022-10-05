@@ -3,13 +3,15 @@ import * as vscode from "vscode";
 // tslint:disable-next-line: no-duplicate-imports no-implicit-dependencies
 import { Position, Range, Selection } from "vscode";
 
-let global = {
-  lines: 10,
-  cursorFollowsViewport: true,
-};
-
 type Direction = "down" | "up";
 
+/**
+ *
+ * @param lines how many lines of code to scroll down
+ * @param direction "up" or "down"
+ * @returns Where the screen should move to - the line number of the top of the
+ * screen and bottom of the screen. Rather complicated as it takes into account code folding.
+ */
 const calculateLimits = (
   lines: number,
   direction: Direction,
@@ -22,24 +24,10 @@ const calculateLimits = (
       editor.document.lineCount,
     );
 
-    let top = visibleRanges[0].start.line;
-    let linesRemaining =
+    const startTop = visibleRanges[0].start.line;
+    const linesToAdd =
       bottom - visibleRanges[visibleRanges.length - 1].end.line;
-    let i = 0;
-
-    while (linesRemaining > 0 && i < visibleRanges.length) {
-      const range = visibleRanges[i];
-      const toBurn = Math.min(range.end.line - top, linesRemaining);
-      linesRemaining -= toBurn;
-      top += toBurn;
-      i++;
-      // burn 1 line to reach next visible range
-      if (linesRemaining > 0 && i < visibleRanges.length) {
-        linesRemaining--;
-        top = visibleRanges[i].start.line;
-      }
-    }
-    top += linesRemaining;
+    const top = foldingAwareAddLines(startTop, linesToAdd, "down");
 
     return { top, bottom };
   } else if (direction === "up") {
@@ -51,23 +39,9 @@ const calculateLimits = (
     // but I'd rather have it inlined, out in the open
     const top = Math.max(visibleRanges[0].start.line - lines, 0);
 
-    let bottom = visibleRanges[visibleRanges.length - 1].end.line;
-    let linesRemaining = visibleRanges[0].start.line - top;
-    let i = visibleRanges.length - 1;
-
-    while (linesRemaining > 0 && i >= 0) {
-      const range = visibleRanges[i];
-      const toBurn = Math.min(bottom - range.start.line, linesRemaining);
-      linesRemaining -= toBurn;
-      bottom -= toBurn;
-      i--;
-      // burn 1 line to reach next visible range
-      if (linesRemaining > 0 && i >= 0) {
-        linesRemaining--;
-        bottom = visibleRanges[i].end.line;
-      }
-    }
-    bottom -= linesRemaining;
+    const startBottom = visibleRanges[visibleRanges.length - 1].end.line;
+    const linesToAdd = visibleRanges[0].start.line - top;
+    const bottom = foldingAwareAddLines(startBottom, linesToAdd, "up");
 
     return { top, bottom };
   }
@@ -75,10 +49,95 @@ const calculateLimits = (
   return { top: 0, bottom: 0 };
 };
 
+const foldingAwareAddLines = (
+  startLine: number,
+  linesToAdd: number,
+  direction: Direction,
+): number => {
+  let linesRemaining = linesToAdd;
+  const editor = vscode.window.activeTextEditor!;
+  const { visibleRanges } = editor;
+  let line = startLine;
+
+  if (direction === "down") {
+    let i = 0;
+    while (linesRemaining > 0 && i < visibleRanges.length) {
+      const range = visibleRanges[i];
+      const toBurn = Math.min(range.end.line - line, linesRemaining);
+      linesRemaining -= toBurn;
+      line += toBurn;
+      i++;
+      // burn 1 line to reach next visible range
+      if (linesRemaining > 0 && i < visibleRanges.length) {
+        linesRemaining--;
+        line = visibleRanges[i].start.line;
+      }
+    }
+    line += linesRemaining;
+    return line;
+  } else if (direction === "up") {
+    let i = visibleRanges.length - 1;
+
+    while (linesRemaining > 0 && i >= 0) {
+      const range = visibleRanges[i];
+      const toBurn = Math.min(line - range.start.line, linesRemaining);
+      linesRemaining -= toBurn;
+      line -= toBurn;
+      i--;
+      // burn 1 line to reach next visible range
+      if (linesRemaining > 0 && i >= 0) {
+        linesRemaining--;
+        line = visibleRanges[i].end.line;
+      }
+    }
+    line -= linesRemaining;
+    return line;
+  }
+  throw Error(`unimplemented direction ${direction}`);
+};
+
+// You can set editor.cursorSurroundLines: 10 to always leave 10 lines between
+// your cursor and the top of the viewport.
+
+// However, vscode has undocumented behavior that if you set this number too low
+// (including the default value of 0), it will actually round up to
+// `VSCODE_AUTO_SURROUND_LINES_TOP` revealed space at the top. Same with
+// `VSCODE_AUTO_SURROUND_LINES_BOTTOM` at the bottom.
+
+// these functions calculate this *effective* value of
+// editor.cursorSurroundingLines, so we can compensate for it when requesting a
+// scroll range.
+const VSCODE_AUTO_SURROUND_LINES_TOP = 5;
+const VSCODE_AUTO_SURROUND_LINES_BOTTOM = 1;
+
+const calculateLimitsWithSurroundLines = (
+  direction: Direction,
+): { top: number; bottom: number } => {
+  const lines = vscode.workspace
+    .getConfiguration("scrollViewport")
+    .get<number>("lines", 10);
+  let { top, bottom } = calculateLimits(lines, direction);
+
+  const cursorSurroundLines = vscode.workspace
+    .getConfiguration("editor")
+    .get<number>("cursorSurroundingLines", 0);
+  const surroundLinesTop = Math.max(
+    cursorSurroundLines,
+    VSCODE_AUTO_SURROUND_LINES_TOP,
+  );
+  const surroundLinesBottom = Math.max(
+    cursorSurroundLines,
+    VSCODE_AUTO_SURROUND_LINES_BOTTOM,
+  );
+  top = foldingAwareAddLines(top, surroundLinesTop, "down");
+  bottom = foldingAwareAddLines(bottom, surroundLinesBottom, "up");
+  return { top, bottom };
+};
+
 const scrollDown = () => {
   const editor = vscode.window.activeTextEditor!;
 
-  const { top, bottom } = calculateLimits(global.lines, "down");
+  const { top, bottom } = calculateLimitsWithSurroundLines("down");
 
   // update viewport - reveal bottom
   const bottomPosition = new Position(bottom, 0);
@@ -86,13 +145,13 @@ const scrollDown = () => {
 
   // update cursor - move to top
   const topPosition = new Position(top, 0);
-  confineCursorToViewport(new Range(topPosition, bottomPosition));
+  confineCursorToViewportIfEnabled(new Range(topPosition, bottomPosition));
 };
 
 const scrollUp = () => {
   const editor = vscode.window.activeTextEditor!;
 
-  const { top, bottom } = calculateLimits(global.lines, "up");
+  const { top, bottom } = calculateLimitsWithSurroundLines("up");
 
   // update viewport - reveal top
   const topPosition = new Position(top, 0);
@@ -100,10 +159,10 @@ const scrollUp = () => {
 
   // update cursor - move to bottom
   const bottomPosition = new Position(bottom, 0);
-  confineCursorToViewport(new Range(bottomPosition, topPosition));
+  confineCursorToViewportIfEnabled(new Range(bottomPosition, topPosition));
 };
 
-const confineCursorToViewport = (range: Range) => {
+const confineCursorToViewportIfEnabled = (range: Range) => {
   const editor = vscode.window.activeTextEditor!;
   // put active inside new revealed range
   if (editor.selection.active.compareTo(range.start) < 0) {
@@ -128,20 +187,6 @@ const selecting = (): boolean => {
   );
 };
 
-const updateFromConfig = () => {
-  const configuration = vscode.workspace.getConfiguration("scrollViewport");
-  global = {
-    ...global,
-    ...{
-      lines: configuration.get<number>("lines", 10),
-      cursorFollowsViewport: configuration.get<boolean>(
-        "cursorFollowsViewport",
-        true,
-      ),
-    },
-  };
-};
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -155,11 +200,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("scrollViewport.scrollUp", scrollUp),
   );
-
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration(updateFromConfig),
-  );
-  updateFromConfig();
 }
 
 // this method is called when your extension is deactivated
