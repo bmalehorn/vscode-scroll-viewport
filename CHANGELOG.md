@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.0.1
+
+- internal improvements to typescript version, linting
+
 ## 3.0.0
 
 - added feature: obeys `editor.cursorSurroundLines`

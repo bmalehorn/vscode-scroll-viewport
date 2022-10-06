@@ -1,6 +1,4 @@
-// tslint:disable-next-line: no-implicit-dependencies
 import * as vscode from "vscode";
-// tslint:disable-next-line: no-duplicate-imports no-implicit-dependencies
 import { Position, Range, Selection } from "vscode";
 
 type Direction = "down" | "up";
