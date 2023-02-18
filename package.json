@@ -4,7 +4,7 @@
   "displayName": "📜🖥 Scroll Viewport",
   "description": "Move the screen up and down, like with your mouse",
   "license": "MIT",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "engines": {
     "vscode": "^1.37.0"
   },
