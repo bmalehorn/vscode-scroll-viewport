@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 16
       - run: yarn
-      - run: yarn build
+      - run: yarn compile
       # - name: Publish to Open VSX Registry
       #   uses: HaaLeo/publish-vscode-extension@v1
       #   with:
