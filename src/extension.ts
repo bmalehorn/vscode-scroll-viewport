@@ -150,6 +150,8 @@ const scrollUp = () => {
   const editor = vscode.window.activeTextEditor!;
 
   const { top, bottom } = calculateLimitsWithSurroundLines("up");
+  let x: number = "foo";
+  console.log("x =", x);
 
   // update viewport - reveal top
   const topPosition = new Position(top, 0);
