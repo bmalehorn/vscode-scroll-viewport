@@ -14,6 +14,8 @@ jobs:
       version: ${{ steps.extract_versions.outputs.version }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - run: |
           # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
           echo "current_version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
