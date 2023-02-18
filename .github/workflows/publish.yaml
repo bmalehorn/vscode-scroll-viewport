@@ -5,9 +5,37 @@ on:
       - main
       - master
 
-name: Deploy Extension
+name: publish
 jobs:
+  # extract "version" from package.json and set it as an output
+  get_current_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "::set-output name=version::$(jq -r .version package.json)"
+        id: get_version
+
+  get_previous_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.before }}
+      - run: |
+          echo "::set-output name=version::$(jq -r .version package.json)"
+        id: get_version
+
   deploy:
+    # only run if the version has changed
+    needs:
+      - get_current_version
+      - get_previous_version
+    if: ${{ needs.get_current_version.outputs.version != needs.get_previous_version.outputs.version }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
