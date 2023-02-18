@@ -8,51 +8,47 @@ on:
 name: publish
 jobs:
   # extract "version" from package.json and set it as an output
-  get_current_version:
+  get_versions:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get_version.outputs.version }}
+      version: ${{ steps.extract_versions.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: |
           # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
-          echo "version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
-        id: get_version
-
-  get_previous_version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.before }}
-      - run: |
-          echo "version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
-        id: get_version
+          echo "current_version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
+          git checkout HEAD^
+          echo "previous_version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
+        id: extract_versions
 
   deploy:
     # only run if the version has changed
     needs:
-      - get_current_version
-      - get_previous_version
-    if: ${{ needs.get_current_version.outputs.version != needs.get_previous_version.outputs.version }}
+      - get_versions
+    if: ${{ needs.get_versions.outputs.current_version != needs.get_versions.outputs.previous_version }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v1
         with:
           node-version: 16
       - run: yarn
       - run: yarn compile
-      # - name: Publish to Open VSX Registry
-      #   uses: HaaLeo/publish-vscode-extension@v1
-      #   with:
-      #     pat: ${{ secrets.OPEN_VSX_TOKEN }}
-      #     yarn: true
+      - name: Publish to Open VSX Registry
+        uses: HaaLeo/publish-vscode-extension@v1
+        with:
+          # updating:
+          # 1. https://open-vsx.org/user-settings/tokens
+          # 2. set secret in Settings > Secrets > Actions
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          yarn: true
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
         with:
+          # updating:
+          # 1. read this: https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token
+          # 2. create: https://dev.azure.com/bmalehorn/_usersSettings/tokens
+          # 3. set secret in Settings > Secrets > Actions
           pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
           registryUrl: https://marketplace.visualstudio.com
           yarn: true
