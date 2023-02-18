@@ -37,14 +37,6 @@ jobs:
           node-version: 16
       - run: yarn
       - run: yarn compile
-      - name: Publish to Open VSX Registry
-        uses: HaaLeo/publish-vscode-extension@v1
-        with:
-          # updating:
-          # 1. https://open-vsx.org/user-settings/tokens
-          # 2. set secret in Settings > Secrets > Actions
-          pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          yarn: true
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
         with:
