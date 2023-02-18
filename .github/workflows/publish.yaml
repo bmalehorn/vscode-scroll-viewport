@@ -15,7 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          echo "::set-output name=version::$(jq -r .version package.json)"
+          # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+          echo "version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
         id: get_version
 
   get_previous_version:
@@ -27,7 +28,7 @@ jobs:
         with:
           ref: ${{ github.event.before }}
       - run: |
-          echo "::set-output name=version::$(jq -r .version package.json)"
+          echo "version=$(jq -r .version package.json)" | tee -a $GITHUB_OUTPUT
         id: get_version
 
   deploy:
