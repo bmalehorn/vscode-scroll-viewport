@@ -11,7 +11,8 @@ jobs:
   get_versions:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.extract_versions.outputs.version }}
+      current_version: ${{ steps.extract_versions.outputs.current_version }}
+      previous_version: ${{ steps.extract_versions.outputs.previous_version }}
     steps:
       - uses: actions/checkout@v3
         with:
