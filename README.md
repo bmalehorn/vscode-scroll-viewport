@@ -1,7 +1,7 @@
 # 📜🖥 Scroll Viewport
 
-[![version number](https://vsmarketplacebadge.apphb.com/version-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
-[![install count](https://vsmarketplacebadge.apphb.com/installs-short/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
+[![version number](https://img.shields.io/visual-studio-marketplace/v/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
+[![install count](https://img.shields.io/visual-studio-marketplace/i/bmalehorn.scroll-viewport.svg)](https://marketplace.visualstudio.com/items?itemName=bmalehorn.scroll-viewport)
 
 <img src="demo.gif" width="600">
 

@@ -1,5 +1,9 @@
 # Change Log
 
+# 3.0.3
+
+- Really update badge URLs
+
 # 3.0.2
 
 - Update badge URLs
