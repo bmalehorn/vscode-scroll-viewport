@@ -1,5 +1,9 @@
 # Change Log
 
+# 3.0.2
+
+- Update badge URLs
+
 ## 3.0.1
 
 - internal improvements to typescript version, linting
